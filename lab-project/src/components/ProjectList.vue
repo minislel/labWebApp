@@ -8,6 +8,10 @@ import ProjectForm from './ProjectForm.vue';
 const projects = ref<Project[]>([]);
 const editingProject = ref<Project | null>(null);
 
+const emit = defineEmits<{
+  select: [project: Project];
+}>();
+
 async function loadProjects() {
   projects.value = await projectApi.list();
 }
@@ -53,8 +57,7 @@ onMounted(loadProjects);
 
     <section class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 md:p-8 shadow-md">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-          <span class="text-xl">📋</span>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">
           Twoje projekty
         </h2>
         <span
@@ -66,7 +69,6 @@ onMounted(loadProjects);
       </div>
 
       <div v-if="projects.length === 0" class="text-center py-12" id="empty-state">
-        <div class="text-5xl mb-4 opacity-70">📂</div>
         <p class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Nie masz jeszcze żadnych projektów.</p>
         <p class="text-sm text-slate-400">Dodaj swój pierwszy projekt powyżej!</p>
       </div>
@@ -76,12 +78,13 @@ onMounted(loadProjects);
           v-for="project in projects"
           :key="project.id"
           :project="project"
+          @select="(p) => emit('select', p)"
           @edit="handleEdit"
           @delete="handleDelete"
         />
       </TransitionGroup>
     </section>
-  </div>
+  </div>  
 </template>
 
 <style scoped>

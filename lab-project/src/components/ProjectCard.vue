@@ -6,6 +6,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
+  select: [project: Project];
   edit: [project: Project];
   delete: [id: string];
 }>();
@@ -13,8 +14,9 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="flex items-start justify-between gap-4 p-5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all hover:border-primary-300 dark:hover:border-primary-500/40 hover:shadow-md hover:-translate-y-0.5"
+    class="flex items-start justify-between gap-4 p-5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all hover:border-primary-300 dark:hover:border-primary-500/40 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
     :id="`project-card-${project.id}`"
+    @click="emit('select', project)"
   >
     <div class="flex-1 min-w-0">
       <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-1 truncate">{{ project.name }}</h3>
@@ -23,14 +25,14 @@ const emit = defineEmits<{
         ID: {{ project.id }}
       </span>
     </div>
-    <div class="flex gap-1 shrink-0">
+    <div class="flex gap-1 shrink-0" @click.stop>
       <button
         class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-colors cursor-pointer"
         :id="`edit-btn-${project.id}`"
         title="Edytuj projekt"
         @click="emit('edit', project)"
       >
-        ✏️
+        Edytuj
       </button>
       <button
         class="w-9 h-9 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
@@ -38,7 +40,7 @@ const emit = defineEmits<{
         title="Usuń projekt"
         @click="emit('delete', project.id)"
       >
-        🗑️
+        Usuń
       </button>
     </div>
   </div>

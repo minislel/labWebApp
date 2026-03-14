@@ -63,8 +63,7 @@ function handleCancel() {
     @submit.prevent="handleSubmit"
     id="project-form"
   >
-    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2.5">
-      <span class="text-2xl">{{ editingProject ? '✏️' : '🚀' }}</span>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
       {{ editingProject ? 'Edytuj projekt' : 'Nowy projekt' }}
     </h2>
 
@@ -105,7 +104,6 @@ function handleCancel() {
         class="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl shadow-md shadow-primary-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/35 active:translate-y-0 transition-all cursor-pointer"
         id="project-submit-btn"
       >
-        <span>{{ editingProject ? '💾' : '➕' }}</span>
         {{ editingProject ? 'Zapisz zmiany' : 'Dodaj projekt' }}
       </button>
       <button
