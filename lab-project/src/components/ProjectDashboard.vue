@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import type { Project } from '../models/Project';
 import type { Story } from '../models/Story';
-import { storyApi } from '../api/StoryApi';
+import { storyRepository } from '../repository/StoryRepository';
 import StoryList from './StoryList.vue';
 
 const props = defineProps<{
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 const stories = ref<Story[]>([]);
 
 async function loadStories() {
-  stories.value = await storyApi.listByProject(props.project.id);
+  stories.value = await storyRepository.listByProject(props.project.id);
 }
 
 const storyCount = computed(() => stories.value.length);

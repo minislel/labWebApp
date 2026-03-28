@@ -6,7 +6,7 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
-class StoryApi {
+class StoryRepository {
   private getAll(): Story[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -64,4 +64,4 @@ class StoryApi {
   }
 }
 
-export const storyApi = new StoryApi();
+export const storyRepository = new StoryRepository();

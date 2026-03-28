@@ -6,7 +6,7 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
-class ProjectApi {
+class ProjectRepository {
   private getAll(): Project[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -61,4 +61,4 @@ class ProjectApi {
   }
 }
 
-export const projectApi = new ProjectApi();
+export const projectRepository = new ProjectRepository();

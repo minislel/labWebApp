@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { projectApi } from '../api/ProjectApi';
+import { projectRepository } from '../repository/ProjectRepository';
 import type { Project } from '../models/Project';
 import ProjectCard from './ProjectCard.vue';
 import ProjectForm from './ProjectForm.vue';
@@ -13,15 +13,15 @@ const emit = defineEmits<{
 }>();
 
 async function loadProjects() {
-  projects.value = await projectApi.list();
+  projects.value = await projectRepository.list();
 }
 
 async function handleSave(name: string, description: string) {
   if (editingProject.value) {
-    await projectApi.update({ id: editingProject.value.id, name, description });
+    await projectRepository.update({ id: editingProject.value.id, name, description });
     editingProject.value = null;
   } else {
-    await projectApi.create({ name, description });
+    await projectRepository.create({ name, description });
   }
   await loadProjects();
 }
@@ -33,7 +33,7 @@ function handleEdit(project: Project) {
 
 async function handleDelete(id: string) {
   if (!confirm('Czy na pewno chcesz usunąć ten projekt?')) return;
-  await projectApi.delete(id);
+  await projectRepository.delete(id);
   if (editingProject.value?.id === id) {
     editingProject.value = null;
   }

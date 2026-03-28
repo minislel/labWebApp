@@ -3,31 +3,31 @@ import { ref, onMounted } from 'vue';
 import ProjectList from './components/ProjectList.vue';
 import ProjectDashboard from './components/ProjectDashboard.vue';
 import { userManager } from './auth/UserManager';
-import { activeProjectApi } from './api/ActiveProjectApi';
-import { projectApi } from './api/ProjectApi';
+import { activeProjectRepository } from './repository/ActiveProjectRepository';
+import { projectRepository } from './repository/ProjectRepository';
 import type { Project } from './models/Project';
 
 const userName = userManager.getFullName();
 const activeProject = ref<Project | null>(null);
 
 async function selectProject(project: Project) {
-  activeProjectApi.set(project.id);
+  activeProjectRepository.set(project.id);
   activeProject.value = project;
 }
 
 function clearActiveProject() {
-  activeProjectApi.clear();
+  activeProjectRepository.clear();
   activeProject.value = null;
 }
 
 onMounted(async () => {
-  const savedId = activeProjectApi.get();
+  const savedId = activeProjectRepository.get();
   if (savedId) {
-    const project = await projectApi.getById(savedId);
+    const project = await projectRepository.getById(savedId);
     if (project) {
       activeProject.value = project;
     } else {
-      activeProjectApi.clear();
+      activeProjectRepository.clear();
     }
   }
 });

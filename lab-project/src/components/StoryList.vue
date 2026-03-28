@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { storyApi } from '../api/StoryApi';
+import { storyRepository } from '../repository/StoryRepository';
 import { userManager } from '../auth/UserManager';
 import type { Story, StoryPriority, StoryState } from '../models/Story';
 import StoryCard from './StoryCard.vue';
 import StoryForm from './StoryForm.vue';
+import TaskDetail from './TaskDetail.vue';
 
 const props = defineProps<{
   projectId: string;
@@ -13,12 +14,18 @@ const props = defineProps<{
 const stories = ref<Story[]>([]);
 const editingStory = ref<Story | null>(null);
 const activeFilter = ref<StoryState | 'all'>('all');
+const selectedTaskId = ref<string | null>(null);
+const tasksKey = ref(0);
+
+function handleTaskClick(taskId: string) {
+  selectedTaskId.value = taskId;
+}
 
 const currentUser = userManager.getUser();
 const ownerId = currentUser?.id ?? '';
 
 async function loadStories() {
-  stories.value = await storyApi.listByProject(props.projectId);
+  stories.value = await storyRepository.listByProject(props.projectId);
 }
 
 const filteredStories = computed(() => {
@@ -35,13 +42,13 @@ const countByState = computed(() => ({
 
 async function handleSave(payload: { name: string; description: string; priority: StoryPriority; state: StoryState }) {
   if (editingStory.value) {
-    await storyApi.update({
+    await storyRepository.update({
       ...editingStory.value,
       ...payload,
     });
     editingStory.value = null;
   } else {
-    await storyApi.create({
+    await storyRepository.create({
       ...payload,
       projectId: props.projectId,
       ownerId,
@@ -57,7 +64,7 @@ function handleEdit(story: Story) {
 
 async function handleDelete(id: string) {
   if (!confirm('Czy na pewno chcesz usunąć tę historyjkę?')) return;
-  await storyApi.delete(id);
+  await storyRepository.delete(id);
   if (editingStory.value?.id === id) {
     editingStory.value = null;
   }
@@ -80,6 +87,13 @@ onMounted(loadStories);
 
 <template>
   <div id="story-list-container">
+    <TaskDetail
+      v-if="selectedTaskId"
+      :task-id="selectedTaskId"
+      @close="selectedTaskId = null"
+      @task-updated="tasksKey++"
+    />
+
     <StoryForm
       :editing-story="editingStory"
       :project-id="projectId"
@@ -133,10 +147,11 @@ onMounted(loadStories);
       <TransitionGroup name="story-card" tag="div" class="flex flex-col gap-3" v-else>
         <StoryCard
           v-for="story in filteredStories"
-          :key="story.id"
+          :key="`${story.id}-${tasksKey}`"
           :story="story"
           @edit="handleEdit"
           @delete="handleDelete"
+          @task-click="handleTaskClick"
         />
       </TransitionGroup>
     </section>

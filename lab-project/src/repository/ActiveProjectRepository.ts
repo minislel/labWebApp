@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'manageme_active_project_id';
 
-class ActiveProjectApi {
+class ActiveProjectRepository {
   get(): string | null {
     return localStorage.getItem(STORAGE_KEY);
   }
@@ -14,4 +14,4 @@ class ActiveProjectApi {
   }
 }
 
-export const activeProjectApi = new ActiveProjectApi();
+export const activeProjectRepository = new ActiveProjectRepository();

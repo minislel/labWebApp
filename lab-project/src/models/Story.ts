@@ -10,6 +10,8 @@ export interface Story {
   createdAt: string;
   state: StoryState;
   ownerId: string;
+  assigneeId: string;
+  taskIds: string[];
 }
 
-export type StoryCreatePayload = Omit<Story, 'id' | 'createdAt'>;
+export type StoryCreatePayload = Omit<Story, 'id' | 'createdAt' | 'assigneeId' | 'taskIds'>;
