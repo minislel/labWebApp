@@ -4,6 +4,7 @@ import type { Project } from '../models/Project';
 import type { Story } from '../models/Story';
 import { storyRepository } from '../repository/StoryRepository';
 import StoryList from './StoryList.vue';
+import KanbanBoard from './KanbanBoard.vue';
 
 const props = defineProps<{
   project: Project;
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 }>();
 
 const stories = ref<Story[]>([]);
+const viewMode = ref<'stories' | 'kanban'>('stories');
 
 async function loadStories() {
   stories.value = await storyRepository.listByProject(props.project.id);
@@ -53,23 +55,56 @@ onMounted(loadStories);
       </div>
 
       <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-            <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ storyCount }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Historyjki</div>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="grid grid-cols-3 gap-4 w-full sm:w-auto flex-1">
+            <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ storyCount }}</div>
+              <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Historyjki</div>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ doingCount }}</div>
+              <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">W trakcie</div>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ progressPercent }}%</div>
+              <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Ukończono</div>
+            </div>
           </div>
-          <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ doingCount }}</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">W trakcie</div>
-          </div>
-          <div class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-            <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ progressPercent }}%</div>
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">Ukończono</div>
+          
+          <div class="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
+            <button 
+              @click="viewMode = 'stories'" 
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              :class="viewMode === 'stories' ? 'bg-white dark:bg-slate-800 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              Lista historyjek
+            </button>
+            <button 
+              @click="viewMode = 'kanban'" 
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              :class="viewMode === 'kanban' ? 'bg-white dark:bg-slate-800 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+              Tablica Kanban
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <StoryList :project-id="project.id" @stories-changed="loadStories" />
+    <StoryList v-if="viewMode === 'stories'" :project-id="project.id" @stories-changed="loadStories" />
+    <KanbanBoard v-else :project-id="project.id" @board-updated="loadStories" />
   </div>
 </template>

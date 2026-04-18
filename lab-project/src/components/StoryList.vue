@@ -91,7 +91,7 @@ onMounted(loadStories);
       v-if="selectedTaskId"
       :task-id="selectedTaskId"
       @close="selectedTaskId = null"
-      @task-updated="tasksKey++"
+      @task-updated="tasksKey++; loadStories()"
     />
 
     <StoryForm
@@ -152,6 +152,7 @@ onMounted(loadStories);
           @edit="handleEdit"
           @delete="handleDelete"
           @task-click="handleTaskClick"
+          @story-updated="loadStories"
         />
       </TransitionGroup>
     </section>

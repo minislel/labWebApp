@@ -9,6 +9,7 @@ const emit = defineEmits<{
   edit: [story: Story];
   delete: [id: string];
   'task-click': [taskId: string];
+  'story-updated': [];
 }>();
 
 const priorityLabel: Record<string, string> = {
@@ -38,6 +39,7 @@ const stateColor: Record<string, string> = {
 import { ref, onMounted } from 'vue';
 import type { Task } from '../models/Task';
 import { taskRepository } from '../repository/TaskRepository';
+import { storyRepository } from '../repository/StoryRepository';
 import TaskForm from './TaskForm.vue';
 
 const tasks = ref<Task[]>([]);
@@ -50,11 +52,25 @@ async function loadTasks() {
 async function onTaskSaved() {
   isCreatingTask.value = false;
   await loadTasks();
+  emit('story-updated');
 }
 
 async function toggleTaskState(task: Task) {
   task.state = task.state === 'done' ? 'todo' : 'done';
   await taskRepository.update(task);
+  
+  const allTodo = tasks.value.length > 0 ? tasks.value.every(t => t.state === 'todo') : true;
+  const allDone = tasks.value.length > 0 && tasks.value.every(t => t.state === 'done');
+  
+  let newState: 'todo' | 'doing' | 'done' = 'doing';
+  if (allDone) newState = 'done';
+  else if (allTodo) newState = 'todo';
+  
+  if (props.story.state !== newState) {
+    const updatedStory = { ...props.story, state: newState };
+    await storyRepository.update(updatedStory);
+    emit('story-updated');
+  }
 }
 
 onMounted(loadTasks);

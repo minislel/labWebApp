@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import type { Task } from '../models/Task';
 import { userManager } from '../auth/UserManager';
 import { taskRepository } from '../repository/TaskRepository';
+import { storyRepository } from '../repository/StoryRepository';
 
 const props = defineProps<{
   storyId: string;
@@ -73,6 +74,20 @@ async function save() {
       assigneeId: assigneeId.value || null,
       state: state.value
     });
+  }
+  
+  const allTasks = await taskRepository.listByStory(props.storyId);
+  const allTodo = allTasks.length > 0 ? allTasks.every(t => t.state === 'todo') : true;
+  const allDone = allTasks.length > 0 && allTasks.every(t => t.state === 'done');
+  
+  let newState: 'todo' | 'doing' | 'done' = 'doing';
+  if (allDone) newState = 'done';
+  else if (allTodo) newState = 'todo';
+
+  const story = await storyRepository.getById(props.storyId);
+  if (story && story.state !== newState) {
+    story.state = newState;
+    await storyRepository.update(story);
   }
   
   isLoading.value = false;

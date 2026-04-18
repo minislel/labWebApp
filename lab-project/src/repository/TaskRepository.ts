@@ -16,6 +16,10 @@ class TaskRepository {
     return this.getTasks().filter((t) => t.storyId === storyId);
   }
 
+  async listByStoryIds(storyIds: string[]): Promise<Task[]> {
+    return this.getTasks().filter((t) => storyIds.includes(t.storyId));
+  }
+
   async getById(id: string): Promise<Task | null> {
     return this.getTasks().find((t) => t.id === id) || null;
   }
